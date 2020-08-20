@@ -10,12 +10,11 @@ Docker </br>
 Kubernatives </br>
 
 # Phase 1
-Create basic project structure for the following modules
-User Management
-
-Product Management
-Cart module
-Payment module
-Delivery management
+Create basic project structure for the following modules </br>
+User Management </br>
+Product Management </br>
+Cart module </br>
+Payment module </br>
+Delivery management </br>
 
 
