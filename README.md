@@ -2,12 +2,12 @@
 Sample ecommerce website
 
 # Tecnology stack
-Java 8+ /n
-Spring Boot /n 
-Microservices /n
-MongoDB /n
-Docker /n
-Kubernatives /n
+Java 8+ </br>
+Spring Boot </br> 
+Microservices </br>
+MongoDB </br>
+Docker </br>
+Kubernatives </br>
 
 # Phase 1
 Create basic project structure for the following modules
