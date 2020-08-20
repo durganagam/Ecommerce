@@ -1,2 +1,2 @@
-# ecommerce-website
-E-commerce website
+# Ecommerce Website
+Sample ecommerce website
