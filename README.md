@@ -7,7 +7,7 @@ Spring Boot </br>
 Microservices </br>
 MongoDB </br>
 Docker </br>
-Kubernatives </br>
+Kubernetes </br>
 
 # Phase 1
 Create basic project structure for the following modules </br>
