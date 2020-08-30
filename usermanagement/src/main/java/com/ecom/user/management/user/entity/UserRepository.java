@@ -10,10 +10,10 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends CrudRepository<User, String> {
 	public static final Map<String, User> USER_MAP = new ConcurrentHashMap<String, User>();
 
-	@SuppressWarnings("unchecked")
 	@Override
 	default <S extends User> S save(S entity) {
-		return (S) USER_MAP.put(entity.getMobileNo(), entity);
+		  USER_MAP.put(entity.getMobileNo(), entity);
+		  return entity;
 	}
 
 	default boolean findByUserId(String id) {

@@ -1,12 +1,16 @@
 package com.ecom.user.management.user.entity;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class Name {
 	private String lastName;
 	private String firstName;
 	private String middleName;
 
-	public Name() {}
-	
+	public Name() {
+	}
+
 	public Name(String lastName, String firstName, String middleName) {
 		super();
 		this.lastName = lastName;

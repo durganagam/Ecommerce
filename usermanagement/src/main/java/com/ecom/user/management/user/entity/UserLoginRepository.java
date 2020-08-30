@@ -12,10 +12,10 @@ import com.ecom.user.management.user.entity.model.UserStatus;
 public interface UserLoginRepository extends CrudRepository<UserLogin, String> {
 	public static final Map<String, UserLogin> LOGIN_MAP = new ConcurrentHashMap<String, UserLogin>();
 
-	@SuppressWarnings("unchecked")
 	@Override
 	default <S extends UserLogin> S save(S entity) {
-		return (S) LOGIN_MAP.put(entity.getUserId(), entity);
+		LOGIN_MAP.put(entity.getUserId(), entity);
+		return entity;
 	}
 
 	default boolean findByUserId(String userId) {
