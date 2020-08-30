@@ -53,7 +53,7 @@ public class UserService {
 		return WebClient.create("http://localhost:8080/sms").post().body(mobileNumber, String.class)
 				.accept(MediaType.APPLICATION_JSON).retrieve()
 				.onStatus(httpStatus -> !HttpStatus.OK.equals(httpStatus),
-						response -> response.bodyToMono(String.class).map(body -> new RuntimeException()))
+						response -> response.bodyToMono(String.class).map(body -> new EcommerceException("Please try again.")))
 				.bodyToMono(String.class).block();
 	}
 
