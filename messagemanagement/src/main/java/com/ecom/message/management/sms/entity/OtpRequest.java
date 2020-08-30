@@ -1,6 +1,7 @@
 package com.ecom.message.management.sms.entity;
 
 public class OtpRequest {
+
 	private String message;
 	private String mobileNo;
 

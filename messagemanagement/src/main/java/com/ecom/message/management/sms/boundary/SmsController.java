@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecom.message.management.sms.controller.SmsService;
-import com.ecom.message.management.sms.entity.OtpRequest;
 
 @RestController
 @RequestMapping("sms")
@@ -20,7 +19,7 @@ public class SmsController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.OK)
-	public String generateOtp(@RequestBody final OtpRequest request) {
-		return smsService.generateOtp(request);
+	public String generateOtp(@RequestBody final String mobileNo) {
+		return smsService.sendOtp(mobileNo);
 	}
 }
