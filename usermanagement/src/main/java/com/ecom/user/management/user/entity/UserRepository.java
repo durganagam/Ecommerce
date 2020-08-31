@@ -19,5 +19,9 @@ public interface UserRepository extends CrudRepository<User, String> {
 	default boolean findByUserId(String id) {
 		return USER_MAP.containsKey(id);
 	}
+	
+	default User findByMobileNo(String id) {
+		return USER_MAP.get(id);
+	}
 
 }

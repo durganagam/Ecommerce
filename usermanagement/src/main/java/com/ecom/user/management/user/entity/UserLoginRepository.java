@@ -18,8 +18,15 @@ public interface UserLoginRepository extends CrudRepository<UserLogin, String> {
 		return entity;
 	}
 
-	default boolean findByUserId(String userId) {
-		return LOGIN_MAP.containsKey(userId);
+	default UserLogin findByUserId(String userId) {
+		return LOGIN_MAP.get(userId);
+	}
+	
+	default UserLogin findByMobileNo(String mobileNo) {
+		return LOGIN_MAP.values().stream()
+		  .filter(userLogin -> userLogin.getLoginId().equals(mobileNo))
+		  .findAny()
+		  .orElse(null);
 	}
 	
 	default UserStatus isActiveUser(String userId) {
