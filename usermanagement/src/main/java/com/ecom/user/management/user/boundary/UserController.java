@@ -2,6 +2,7 @@ package com.ecom.user.management.user.boundary;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,12 +16,14 @@ import com.ecom.user.management.user.entity.OtpVerificationRequest;
 import com.ecom.user.management.user.entity.User;
 import com.ecom.user.management.user.entity.UserSignUpRequest;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("users")
 public class UserController {
 	@Autowired
 	private UserService userService;
 
+	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@PostMapping("create")
 	@ResponseStatus(HttpStatus.OK)
 	public User createUser(@RequestBody final UserSignUpRequest request) {
