@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Ecom</title>
+</head>
+<body>
+	<div align="center">
+	    <h1>SignUp</h1>
+	    <form action="#" th:action="@{/signup}" method="post" th:object="${userSignupReuest}">
+	        <label>First Name:</label>
+	        <input type="text" th:field="*{userSignupReuest.name.firstName}" /><br/>
+	 
+	        <label>Middle Name:</label>
+	        <input type="text" th:field="*{userSignupReuest.name.middleName}" /><br/>
+	 
+	        <label>Last Name:</label>
+	        <input type="text" th:field="*{userSignupReuest.name.lastName}" /><br/>
+	 
+	        <label>Mobile Number</label>
+	        <input type="text" th:field="*{userSignupReuest.mobileNo}" /><br/>
+	 
+	        <button type="submit">SignUp</button>     
+	    </form>
+	    <div align="center"> 
+		    <h3>Already Registered <a href="/signin">SignIn</a> here</h3>
+	    </div>
+    </div>
+</body>
+</html>

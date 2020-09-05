@@ -2,9 +2,9 @@ package com.ecom.user.management.user.boundary;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,14 +16,12 @@ import com.ecom.user.management.user.entity.OtpVerificationRequest;
 import com.ecom.user.management.user.entity.User;
 import com.ecom.user.management.user.entity.UserSignUpRequest;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("users")
 public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@PostMapping("create")
 	@ResponseStatus(HttpStatus.OK)
 	public User createUser(@RequestBody final UserSignUpRequest request) {
@@ -37,12 +35,17 @@ public class UserController {
 		userService.verifyOtp(request.getOtp(), request.getUserId());
 		return request.getUserId();
 	}
-		
+
 	@GetMapping("login")
 	@ResponseStatus(HttpStatus.OK)
 	public String userLogin(@RequestParam final String mobileNo) {
 		return userService.userLogin(mobileNo);
-		
+
 	}
-	
+
+	@PutMapping("resend")
+	@ResponseStatus(HttpStatus.OK)
+	public void resendOtp(@RequestParam final String userId) {
+		userService.resendOtp(userId);
+	}
 }

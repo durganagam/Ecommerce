@@ -37,32 +37,61 @@ public class UserService {
 			final User user = new User(name);
 			user.setMobileNo(mobileNo);
 			user.setUserId(UUID.randomUUID().toString());
-
-			UserLogin userLogin = new UserLogin();
-			userLogin.setLoginId(user.getMobileNo());
-			userLogin.setUserId(user.getUserId());
-			userLogin.setStatus(UserStatus.INACTIVE);
-
-			userLoginRepository.save(userLogin);
-			User persistedUser = userRepository.save(user);
-
-			String generateOtp = generateOtp(mobileNo);
-
-			OneTimePassword otp = new OneTimePassword();
-			otp.setOtp(generateOtp);
-			otp.setUserId(user.getUserId());
-			otp.setCreatedDate(new Date());
-
-			oneTimePasswordRepository.save(otp);
-
+			final User persistedUser = userRepository.save(user);
+			final UserLogin userLogin = persistUserLoginDetails(persistedUser);
+			final String generateOtp = generateOtp(mobileNo);
+			
+			persistOneTimePassword(userLogin, generateOtp);
 			return persistedUser;
-
 		}
 		throw new EcommerceException("User already registerd. Please login.");
 	}
 
 	public boolean isUserExists(final String mobileNo) {
 		return userRepository.findByUserId(mobileNo);
+	}
+
+	public boolean verifyOtp(final String otp, final String userId) {
+		final OneTimePassword oneTimePwd = oneTimePasswordRepository.findByUserId(userId);
+		if (oneTimePwd != null && otp.equals(oneTimePwd.getOtp())) {
+			Long duration = new Date().getTime() - oneTimePwd.getCreatedDate().getTime();
+			if (TimeUnit.MILLISECONDS.toSeconds(duration) <= 180) {
+				oneTimePasswordRepository.invalidateOtp(oneTimePwd);
+				final UserLogin userLogin = userLoginRepository.findByUserId(userId);
+				userLogin.setStatus(UserStatus.ACTIVE);
+				userLoginRepository.save(userLogin);
+				return true;
+			} else
+				throw new EcommerceException("One time password expired! Please resend again");
+		}
+		throw new EcommerceException("Entered one time password is incorrect");
+	}
+
+	public String userLogin(final String mobileNo) {
+		final UserLogin userLogin = userLoginRepository.findByMobileNo(mobileNo);
+		if (userLogin != null) {
+			String generateOtp = generateOtp(mobileNo);
+			persistOneTimePassword(userLogin, generateOtp);
+			return userLogin.getUserId();
+		}
+		throw new EcommerceException("Please Register into ECommerce.");
+	}
+
+	public void resendOtp(final String userId) {
+		final UserLogin userLogin = userLoginRepository.findByUserId(userId);
+		if (userLogin != null) {
+			String generateOtp = generateOtp(userLogin.getLoginId());
+			persistOneTimePassword(userLogin, generateOtp);
+		}
+		throw new EcommerceException("Unable resend One time password.");
+	}
+
+	private void persistOneTimePassword(final UserLogin userLogin, final String generateOtp) {
+		final OneTimePassword otp = new OneTimePassword();
+		otp.setOtp(generateOtp);
+		otp.setUserId(userLogin.getUserId());
+		otp.setCreatedDate(new Date());
+		oneTimePasswordRepository.save(otp);
 	}
 
 	private String generateOtp(final String mobileNumber) {
@@ -74,35 +103,12 @@ public class UserService {
 				.bodyToMono(String.class).block();
 	}
 
-	public boolean verifyOtp(final String otp, final String userId) {
-		OneTimePassword oneTimePwd = oneTimePasswordRepository.findByUserId(userId);
-		if (oneTimePwd != null && otp.equals(oneTimePwd.getOtp())) {
-			Long duration = new Date().getTime() - oneTimePwd.getCreatedDate().getTime();
-			if (TimeUnit.MILLISECONDS.toSeconds(duration) <= 180) {
-				oneTimePasswordRepository.invalidateOtp(oneTimePwd);
-				UserLogin userLogin = userLoginRepository.findByUserId(userId);
-				userLogin.setStatus(UserStatus.ACTIVE);
-				userLoginRepository.save(userLogin);
-				return true;
-			} else
-				throw new EcommerceException("Otp is expire. Please resend again");
-		}
-		throw new EcommerceException("Otp doesn't match");
+	private UserLogin persistUserLoginDetails(final User user) {
+		final UserLogin userLogin = new UserLogin();
+		userLogin.setLoginId(user.getMobileNo());
+		userLogin.setUserId(user.getUserId());
+		userLogin.setStatus(UserStatus.INACTIVE);
+		userLoginRepository.save(userLogin);
+		return userLogin;
 	}
-
-
-	public String userLogin(final String mobileNo) {
-		UserLogin userLogin = userLoginRepository.findByMobileNo(mobileNo);
-		if (userLogin != null) {
-			String generateOtp = generateOtp(mobileNo);
-			OneTimePassword otp = new OneTimePassword();
-			otp.setOtp(generateOtp);
-			otp.setUserId(userLogin.getUserId());
-			otp.setCreatedDate(new Date());
-			oneTimePasswordRepository.save(otp);
-			return userLogin.getUserId();
-		}
-		throw new EcommerceException("Please Register into ECommerce.");
-	}
-
 }

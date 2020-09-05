@@ -12,7 +12,6 @@ public class UserServiceInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		// TODO Auto-generated method stub
 		String header = request.getHeader("website");
 		if (!"ecom".equalsIgnoreCase(header))
 			return false;

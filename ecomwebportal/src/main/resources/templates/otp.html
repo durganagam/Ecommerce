@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Ecom</title>
+
+<style type="text/css">
+    label {
+        display: inline-block;
+        width: 200px;
+        margin: 5px;
+        text-align: left;
+    }
+    input[type=text], input[type=password], select {
+        display: inline-block;
+        width: 200px;
+    }
+    button {
+        padding: 5px;
+        margin: 10px;
+    }
+</style>
+</head>
+<body>
+	<div align="center">
+	    <h1>Verify One time password</h1>
+	    <form action="#" th:action="@{/registration/otp/verify}" method="post" th:object="${userSignInRequest}">
+	        <label>One time password</label>
+	        <input type="text" th:field="*{otp}" /><br/>
+	        <input type="text" hidden="true" th:field="*{mobileNo}" /><br/>
+	        <input type="text" hidden="true" th:field="*{userId}" /><br/>	
+	        <button type="submit">SignIn</button>     
+	    </form>
+	    <div align="center"> 
+		    <a href="/registration/otp/resend">Resend OTP</a>
+	    </div>
+    </div>
+</body>
+</html>

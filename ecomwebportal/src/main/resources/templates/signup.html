@@ -1,142 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {
-	font-family: Arial, Helvetica, sans-serif;
-}
+<meta charset="ISO-8859-1">
+<title>Ecom</title>
 
-form {
-	border: 3px solid #f1f1f1;
-}
-
-input[type=text], input[type=password] {
-	width: 100%;
-	padding: 12px 20px;
-	margin: 8px 0;
-	display: inline-block;
-	border: 1px solid #ccc;
-	box-sizing: border-box;
-}
-
-button {
-	background-color: #4CAF50;
-	color: white;
-	padding: 14px 20px;
-	margin: 8px 0;
-	border: none;
-	cursor: pointer;
-	width: 100%;
-}
-
-button:hover {
-	opacity: 0.8;
-}
-
-.cancelbtn {
-	width: auto;
-	padding: 10px 18px;
-	background-color: #f44336;
-}
-
-.imgcontainer {
-	text-align: center;
-	margin: 24px 0 12px 0;
-}
-
-img.avatar {
-	width: 40%;
-	border-radius: 50%;
-}
-
-.container {
-	padding: 16px;
-}
-
-span.psw {
-	float: right;
-	padding-top: 16px;
-}
-
-/* Change styles for span and cancel button on extra small screens */
-@media screen and (max-width: 300px) {
-	span.psw {
-		display: block;
-		float: none;
-	}
-	.cancelbtn {
-		width: 100%;
-	}
-}
+<style type="text/css">
+    label {
+        display: inline-block;
+        width: 200px;
+        margin: 5px;
+        text-align: left;
+    }
+    input[type=text], input[type=password], select {
+        display: inline-block;
+        width: 200px;
+    }
+    button {
+        padding: 5px;
+        margin: 10px;
+    }
 </style>
-
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-<script>
-
-function sendJSON(){ 
-	let result = document.querySelector('.result'); 
-    var fname = $('#fname').val();
-    var mname = $('#mname').val();
-    var lname = $('#lname').val();
-    var mobileno = $('#mobileno').val();
-       
-    // Creating a XHR object 
-    let xhr = new XMLHttpRequest(); 
-    let url = "http://localhost:8080/users/create"; 
-
-    // open a connection 
-    xhr.open("POST", url, true); 
-
-    // Set the request header i.e. which type of content you are sending 
-    xhr.setRequestHeader("Content-Type", "application/json"); 
-
-    // Create a state change callback 
-    xhr.onreadystatechange = function () { 
-        if (xhr.readyState === 4 && xhr.status === 200) { 
-
-            // Print received data from server 
-            result.innerHTML = this.responseText; 
-
-        } 
-    }; 
-
-    // Converting JSON data to string 
-    var data = JSON.stringify({
-    	  "mobileNo": mobileno,
-    	  "name": {
-    	    "firstName": fname,
-    	    "middleName": mname,
-    	    "lastName": lname
-    	  }
-    	}); 
-
-    // Sending data with the request 
-    xhr.send(data); 
-} 
-
-</script>
-
 </head>
 <body>
-	<h2>Login Form</h2>
-		<div class="container">
-			<label for="mobileno"><b>Mobile Number</b></label> <input type="text"
-				placeholder="Enter Mobile Number" id="mobileno" required> <label
-				for="fname"><b>First Name</b></label> <input type="text"
-				placeholder="First Name" id="fname" required> <label
-				for="mname"><b>Middle Name</b></label> <input type="text"
-				placeholder="Middle Name" id="mname" required> <label
-				for="lname"><b>Last Name</b></label> <input type="text"
-				placeholder="Last Name" id="lname" required> <input
-				type="text" placeholder="User Id" id="userid">
-
-			<button onclick="sendJSON()">SignUp</button>
-			<!-- For printing result from server -->
-            <p class="result" style="color:green"></p> 
-		</div>
-
+	<div align="center">
+	    <h1>SignUp</h1>
+	    <form action="#" th:action="@{/registration/create}" method="post" th:object="${userSignUpRequest}">
+	        <label>First Name:</label>
+	        <input type="text" th:field="*{name.firstName}" /><br/>
+	 
+	        <label>Middle Name:</label>
+	        <input type="text" th:field="*{name.middleName}" /><br/>
+	 
+	        <label>Last Name:</label>
+	        <input type="text" th:field="*{name.lastName}" /><br/>
+	 
+	        <label>Mobile Number</label>
+	        <input type="text" th:field="*{mobileNo}" /><br/>
+	 
+	        <button type="submit">SignUp</button>     
+	    </form>
+	    <div align="center"> 
+		    <h3>Already Registered <a href="/registration/signin">SignIn</a> here</h3>
+	    </div>
+    </div>
 </body>
 </html>

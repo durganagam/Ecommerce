@@ -1,10 +1,17 @@
-package com.ecom.user.management.user.entity;
+package com.ecom.webportal.registration.entity;
 
 public class UserSignUpRequest {
-	
+
 	private Name name;
-	
 	private String mobileNo;
+
+	public UserSignUpRequest() {
+	}
+
+	public UserSignUpRequest(final Name name, final String mobileNo) {
+		this.name = name;
+		this.mobileNo = mobileNo;
+	}
 
 	public Name getName() {
 		return name;
@@ -21,5 +28,4 @@ public class UserSignUpRequest {
 	public void setMobileNo(String mobileNo) {
 		this.mobileNo = mobileNo;
 	}
-
 }
