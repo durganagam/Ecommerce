@@ -1,24 +1,25 @@
 package com.ecom.user.management.user.controller;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.ecom.user.management.exceptions.EcommerceException;
+import com.ecom.user.management.exceptions.InvalidInputException;
 import com.ecom.user.management.user.entity.Name;
-import com.ecom.user.management.user.entity.OneTimePassword;
-import com.ecom.user.management.user.entity.OneTimePasswordRepository;
 import com.ecom.user.management.user.entity.User;
-import com.ecom.user.management.user.entity.UserLogin;
 import com.ecom.user.management.user.entity.UserLoginRepository;
 import com.ecom.user.management.user.entity.UserRepository;
-import com.ecom.user.management.user.entity.model.UserStatus;
+import com.ecom.user.management.user.entity.dto.UserCache;
 
 @Service
 public class UserService {
@@ -29,69 +30,80 @@ public class UserService {
 	@Autowired
 	UserLoginRepository userLoginRepository;
 
-	@Autowired
-	OneTimePasswordRepository oneTimePasswordRepository;
-
-	public User createUser(final Name name, final String mobileNo) {
-		if (!isUserExists(mobileNo)) {
-			final User user = new User(name);
-			user.setMobileNo(mobileNo);
-			user.setUserId(UUID.randomUUID().toString());
-			final User persistedUser = userRepository.save(user);
-			final UserLogin userLogin = persistUserLoginDetails(persistedUser);
-			final String generateOtp = generateOtp(mobileNo);
-			
-			persistOneTimePassword(userLogin, generateOtp);
-			return persistedUser;
+	public String createUser(final Name name, final String mobileNo) {
+		try {
+			if (isValidMobileNumber(mobileNo)) {
+				final String generateOtp = generateOtp(mobileNo);
+				if (!StringUtils.isEmpty(generateOtp)) {
+					String userId = UUID.randomUUID().toString();
+					getUserCache(userId, name, generateOtp);
+					return userId;
+				}
+			}
+		} catch (InvalidInputException exception) {
+			throw new EcommerceException(exception.getMessage());
 		}
-		throw new EcommerceException("User already registerd. Please login.");
+		throw new EcommerceException("Unable process the request! Please try after some time");
 	}
 
-	public boolean isUserExists(final String mobileNo) {
-		return userRepository.findByUserId(mobileNo);
-	}
-
+	@CacheEvict(key = "#userId", condition = "#result = true")
 	public boolean verifyOtp(final String otp, final String userId) {
-		final OneTimePassword oneTimePwd = oneTimePasswordRepository.findByUserId(userId);
-		if (oneTimePwd != null && otp.equals(oneTimePwd.getOtp())) {
-			Long duration = new Date().getTime() - oneTimePwd.getCreatedDate().getTime();
-			if (TimeUnit.MILLISECONDS.toSeconds(duration) <= 180) {
-				oneTimePasswordRepository.invalidateOtp(oneTimePwd);
-				final UserLogin userLogin = userLoginRepository.findByUserId(userId);
-				userLogin.setStatus(UserStatus.ACTIVE);
-				userLoginRepository.save(userLogin);
+		if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(otp)) {
+			throw new EcommerceException("Unable process the request! Please try after some time");
+		}
+		UserCache userCache = getUserCache(userId, null, null);
+		if (userRepository.findByMobileNo(userCache.getMobileNumber()) != null) {
+			throw new EcommerceException("Mobile number already registered with us! please login");
+		}
+		if (userCache != null && otp.equals(userCache.getOneTimePassword())) {
+			long seconds = userCache.getOtpCreatedDate().until(LocalDateTime.now(), ChronoUnit.SECONDS);
+			if (seconds <= 100) {
+				persistUser(userCache, userId);
 				return true;
 			} else
 				throw new EcommerceException("One time password expired! Please resend again");
 		}
-		throw new EcommerceException("Entered one time password is incorrect");
-	}
-
-	public String userLogin(final String mobileNo) {
-		final UserLogin userLogin = userLoginRepository.findByMobileNo(mobileNo);
-		if (userLogin != null) {
-			String generateOtp = generateOtp(mobileNo);
-			persistOneTimePassword(userLogin, generateOtp);
-			return userLogin.getUserId();
-		}
-		throw new EcommerceException("Please Register into ECommerce.");
+		throw new EcommerceException("Please enter the correct one time password");
 	}
 
 	public void resendOtp(final String userId) {
-		final UserLogin userLogin = userLoginRepository.findByUserId(userId);
-		if (userLogin != null) {
-			String generateOtp = generateOtp(userLogin.getLoginId());
-			persistOneTimePassword(userLogin, generateOtp);
+		if (StringUtils.isEmpty(userId)) {
+			throw new EcommerceException("Unable process the request! Please try after some time");
+		}
+		UserCache userCache = getUserCache(userId, null, null);
+		if (userCache != null) {
+			final String generateOtp = generateOtp(userCache.getMobileNumber());
+			if (!StringUtils.isEmpty(generateOtp)) {
+				getUserCache(userId, userCache.getName(), generateOtp);
+			}
 		}
 		throw new EcommerceException("Unable resend One time password.");
 	}
 
-	private void persistOneTimePassword(final UserLogin userLogin, final String generateOtp) {
-		final OneTimePassword otp = new OneTimePassword();
-		otp.setOtp(generateOtp);
-		otp.setUserId(userLogin.getUserId());
-		otp.setCreatedDate(new Date());
-		oneTimePasswordRepository.save(otp);
+	@Cacheable(value = "userCache", key = "#userId")
+	private UserCache getUserCache(String userId, final Name name, final String generateOtp) {
+		UserCache cache = new UserCache();
+		cache.setName(name);
+		cache.setOneTimePassword(generateOtp);
+		cache.setOtpCreatedDate(LocalDateTime.now());
+		return cache;
+	}
+
+	private boolean isValidMobileNumber(final String mobileNumber) throws InvalidInputException {
+		if (!mobileNumber.matches("\\d{10}")) {
+			throw new InvalidInputException("Invalid Mobile Number!");
+		}
+		if (userRepository.findByUserId(mobileNumber)) {
+			throw new InvalidInputException("User already registerd. Please login.");
+		}
+		return true;
+	}
+
+	private void persistUser(final UserCache userCache, final String userId) {
+		User user = new User(userCache.getName());
+		user.setMobileNo(userCache.getMobileNumber());
+		user.setUserId(userId);
+		userRepository.save(user);
 	}
 
 	private String generateOtp(final String mobileNumber) {
@@ -103,12 +115,16 @@ public class UserService {
 				.bodyToMono(String.class).block();
 	}
 
-	private UserLogin persistUserLoginDetails(final User user) {
-		final UserLogin userLogin = new UserLogin();
-		userLogin.setLoginId(user.getMobileNo());
-		userLogin.setUserId(user.getUserId());
-		userLogin.setStatus(UserStatus.INACTIVE);
-		userLoginRepository.save(userLogin);
-		return userLogin;
+	public String userLogin(String mobileNumber) {
+		User user = userRepository.findByMobileNo(mobileNumber);
+		if (user != null) {
+			final String generateOtp = generateOtp(mobileNumber);
+			if (!StringUtils.isEmpty(generateOtp)) {
+				String userId = UUID.randomUUID().toString();
+				getUserCache(userId, user.getName(), generateOtp);
+				return userId;
+			}
+		}
+		throw new EcommerceException("No records found! Please register");
 	}
 }

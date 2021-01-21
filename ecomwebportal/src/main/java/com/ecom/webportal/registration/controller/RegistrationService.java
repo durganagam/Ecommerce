@@ -57,13 +57,13 @@ public class RegistrationService {
 	 *         error page.
 	 */
 	public String createUser(final UserSignUpRequest userSignUpRequest, Model model, HttpSession session) {
-		User user = callUserMgmtServiceToCreateUser(userSignUpRequest);
+		String user = callUserMgmtServiceToCreateUser(userSignUpRequest);
 		if (Objects.nonNull(user)) {
 			UserSignInRequest userSignInRequest = new UserSignInRequest();
-			userSignInRequest.setMobileNo(user.getMobileNo());
-			userSignInRequest.setUserId(user.getUserId());
+			//userSignInRequest.setMobileNo(user.getMobileNo());
+			userSignInRequest.setUserId(user);
 			userSignInRequest.setOtp("");
-			session.setAttribute("userId", user.getUserId());
+			session.setAttribute("userId", user);
 			model.addAttribute("userSignInRequest", userSignInRequest);
 			return "otp";
 		}
@@ -109,12 +109,12 @@ public class RegistrationService {
 				.bodyToMono(String.class).block();
 	}
 
-	private User callUserMgmtServiceToCreateUser(final UserSignUpRequest userSignUpRequest) {
+	private String callUserMgmtServiceToCreateUser(final UserSignUpRequest userSignUpRequest) {
 		return WebClient.create("http://localhost:8080/users/create").post().bodyValue(userSignUpRequest)
 				.header("website", "ecom").accept(MediaType.APPLICATION_JSON).retrieve()
 				.onStatus(httpStatus -> !HttpStatus.OK.equals(httpStatus),
 						response -> response.bodyToMono(String.class).map(body -> null))
-				.bodyToMono(User.class).block();
+				.bodyToMono(String.class).block();
 	}
 
 	private User callUserMgmtServiceToLoginUser(final UserSignInRequest userSignInRequest) {

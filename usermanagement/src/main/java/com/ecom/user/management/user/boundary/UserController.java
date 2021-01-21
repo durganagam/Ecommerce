@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ecom.user.management.user.controller.UserService;
 import com.ecom.user.management.user.entity.OtpVerificationRequest;
-import com.ecom.user.management.user.entity.User;
 import com.ecom.user.management.user.entity.UserSignUpRequest;
 
 @RestController
@@ -24,9 +23,8 @@ public class UserController {
 
 	@PostMapping("create")
 	@ResponseStatus(HttpStatus.OK)
-	public User createUser(@RequestBody final UserSignUpRequest request) {
-		User createUser = userService.createUser(request.getName(), request.getMobileNo());
-		return createUser;
+	public String createUser(@RequestBody final UserSignUpRequest request) {
+		return userService.createUser(request.getName(), request.getMobileNo());
 	}
 
 	@PostMapping("verify")
