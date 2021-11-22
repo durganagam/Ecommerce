@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.ecom.webportal.registration.controller.RegistrationService;
-import com.ecom.webportal.registration.entity.UserSignInRequest1;
+import com.ecom.webportal.registration.entity.UserSignInRequest;
 import com.ecom.webportal.registration.entity.UserSignUpRequest1;
 
 @CrossOrigin(origins = "*")
@@ -44,14 +44,14 @@ public class RegistrationController {
 	
 	@PostMapping
 	@RequestMapping("login")
-	public String loginUser(@ModelAttribute("userSignInRequest") UserSignInRequest1 userSignUpRequest,
+	public String loginUser(@ModelAttribute("userSignInRequest") UserSignInRequest userSignUpRequest,
 			final Model model, final HttpSession session) {
 		return registrationService.login(userSignUpRequest, model, session);
 	}
 
 	@PostMapping
 	@RequestMapping("otp/verify")
-	public String verify(@ModelAttribute("userSignInRequest") UserSignInRequest1 userSignInRequest, final Model model,
+	public String verify(@ModelAttribute("userSignInRequest") UserSignInRequest userSignInRequest, final Model model,
 			HttpSession session) {
 		return registrationService.verifyOtp(userSignInRequest, model, session);
 	}

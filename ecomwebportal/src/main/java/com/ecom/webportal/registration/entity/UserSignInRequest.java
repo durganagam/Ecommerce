@@ -1,6 +1,6 @@
 package com.ecom.webportal.registration.entity;
 
-public class UserSignInRequest1 {
+public class UserSignInRequest {
 
 	private String userId;
 	private String otp;
