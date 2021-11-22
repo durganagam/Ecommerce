@@ -1,14 +1,14 @@
 package com.ecom.webportal.registration.entity;
 
-public class UserSignUpRequest {
+public class UserSignUpRequest1 {
 
 	private Name name;
 	private String mobileNo;
 
-	public UserSignUpRequest() {
+	public UserSignUpRequest1() {
 	}
 
-	public UserSignUpRequest(final Name name, final String mobileNo) {
+	public UserSignUpRequest1(final Name name, final String mobileNo) {
 		this.name = name;
 		this.mobileNo = mobileNo;
 	}

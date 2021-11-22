@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.ecom.webportal.registration.controller.RegistrationService;
 import com.ecom.webportal.registration.entity.UserSignInRequest1;
-import com.ecom.webportal.registration.entity.UserSignUpRequest;
+import com.ecom.webportal.registration.entity.UserSignUpRequest1;
 
 @CrossOrigin(origins = "*")
 @Controller
@@ -37,7 +37,7 @@ public class RegistrationController {
 
 	@PostMapping
 	@RequestMapping("create")
-	public String createUser(@ModelAttribute("userSignUpRequest") UserSignUpRequest userSignUpRequest,
+	public String createUser(@ModelAttribute("userSignUpRequest") UserSignUpRequest1 userSignUpRequest,
 			final Model model, final HttpSession session) {
 		return registrationService.createUser(userSignUpRequest, model, session);
 	}

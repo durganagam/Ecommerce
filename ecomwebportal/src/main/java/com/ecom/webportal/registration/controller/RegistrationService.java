@@ -14,7 +14,7 @@ import com.ecom.webportal.registration.entity.Name;
 import com.ecom.webportal.registration.entity.OtpVerificationRequest;
 import com.ecom.webportal.registration.entity.User;
 import com.ecom.webportal.registration.entity.UserSignInRequest1;
-import com.ecom.webportal.registration.entity.UserSignUpRequest;
+import com.ecom.webportal.registration.entity.UserSignUpRequest1;
 
 import io.netty.handler.codec.http.multipart.Attribute;
 
@@ -29,7 +29,7 @@ public class RegistrationService {
 	 * @param model {@link Model}
 	 */
 	public void signUp(final Model model) {
-		UserSignUpRequest userSignUpRequest = new UserSignUpRequest();
+		UserSignUpRequest1 userSignUpRequest = new UserSignUpRequest1();
 		userSignUpRequest.setName(new Name());
 		model.addAttribute("userSignUpRequest", userSignUpRequest);
 	}
@@ -50,13 +50,13 @@ public class RegistrationService {
 	 * Method create a new user with the given input. It internally calls user
 	 * management service to save the save the user details.
 	 * 
-	 * @param userSignUpRequest {@link UserSignUpRequest}
+	 * @param userSignUpRequest {@link UserSignUpRequest1}
 	 * @param model             {@link Model}
 	 * @param session           {@link HttpSession}
 	 * @return otp if user is successfully registered else return the appropriate
 	 *         error page.
 	 */
-	public String createUser(final UserSignUpRequest userSignUpRequest, Model model, HttpSession session) {
+	public String createUser(final UserSignUpRequest1 userSignUpRequest, Model model, HttpSession session) {
 		String user = callUserMgmtServiceToCreateUser(userSignUpRequest);
 		if (Objects.nonNull(user)) {
 			UserSignInRequest1 userSignInRequest = new UserSignInRequest1();
@@ -109,7 +109,7 @@ public class RegistrationService {
 				.bodyToMono(String.class).block();
 	}
 
-	private String callUserMgmtServiceToCreateUser(final UserSignUpRequest userSignUpRequest) {
+	private String callUserMgmtServiceToCreateUser(final UserSignUpRequest1 userSignUpRequest) {
 		return WebClient.create("http://localhost:8080/users/create").post().bodyValue(userSignUpRequest)
 				.header("website", "ecom").accept(MediaType.APPLICATION_JSON).retrieve()
 				.onStatus(httpStatus -> !HttpStatus.OK.equals(httpStatus),
